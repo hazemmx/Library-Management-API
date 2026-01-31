@@ -7,7 +7,7 @@ RUN npm install
 
 COPY . .
 
-# Match your current PORT
+# current port
 EXPOSE 3005
 
 CMD ["npm", "start"]
