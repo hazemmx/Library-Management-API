@@ -1,0 +1,16 @@
+# Credentials & Secrets
+.env
+
+# Dependencies
+node_modules/
+dist/
+
+# Logs
+npm-debug.log*
+
+# Testing
+coverage/
+
+# OS specific files
+.DS_Store
+Thumbs.db
