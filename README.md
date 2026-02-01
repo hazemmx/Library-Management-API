@@ -2,6 +2,23 @@
 
 A professional, production-ready RESTful API for managing library operations built with Node.js, Express, and PostgreSQL.
 
+---
+
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Database Schema](#️-database-schema)
+- [API Endpoints](#-api-endpoints)
+- [Detailed API Documentation](#-detailed-api-documentation)
+- [Security Features](#-security-features)
+- [Postman Collection & Testing](#-postman-collection--api-testing)
+- [Testing](#-testing)
+- [Project Structure](#️-project-structure)
+- [Assessment Compliance](#-assessment-compliance)
+
+---
+
 ## ✨ Features
 
 ### Core Functionality
@@ -89,7 +106,7 @@ CREATE INDEX idx_borrowings_due_date ON borrowings(due_date);
 CREATE INDEX idx_borrowings_borrower_id ON borrowings(borrower_id);
 ```
 
-**See detailed schema:** [`database/schema.sql`](https://dbdiagram.io/d/library-management-697dd68cbd82f5fce23419f7)
+**See detailed schema:** [`database/schema.sql`](database/schema.sql)
 
 ---
 
@@ -98,39 +115,71 @@ CREATE INDEX idx_borrowings_borrower_id ON borrowings(borrower_id);
 ### Authentication
 | Method | Endpoint | Description | Rate Limited |
 |--------|----------|-------------|--------------|
-| POST | `/api/auth/register` | Register new borrower | ✅ |
-| POST | `/api/auth/login` | Login and receive JWT token | ✅ |
+| POST | `/api/borrowers` | Register new borrower | ❌ |
+| POST | `/api/borrowers/login` | Login and receive JWT token | ✅ |
 
-### Books
+### Books (Public Access)
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | GET | `/api/books` | List all books | ❌ |
-| GET | `/api/books/search?q=` | Search books by title/author/ISBN | ❌ |
-| POST | `/api/books` | Add new book | ✅ |
-| PUT | `/api/books/:id` | Update book details | ✅ |
-| DELETE | `/api/books/:id` | Delete book | ✅ |
+| POST | `/api/books/search` | Search books by title/author/ISBN | ❌ |
+| POST | `/api/books` | Add new book | ❌ |
+| PUT | `/api/books/:id` | Update book details | ❌ |
+| DELETE | `/api/books/:id` | Delete book | ❌ |
 
-### Borrowers
+### Borrowers (Public Access)
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| GET | `/api/borrowers` | List all borrowers | ✅ |
-| GET | `/api/borrowers/:id` | Get borrower details | ✅ |
-| PUT | `/api/borrowers/:id` | Update borrower info | ✅ |
-| DELETE | `/api/borrowers/:id` | Delete borrower | ✅ |
+| GET | `/api/borrowers` | List all borrowers | ❌ |
+| PUT | `/api/borrowers/:id` | Update borrower info | ❌ |
+| DELETE | `/api/borrowers/:id` | Delete borrower | ❌ |
 
-### Borrowing Operations
+### Borrowing Operations (🔒 Protected)
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | POST | `/api/borrowings/checkout` | Checkout a book | ✅ |
 | POST | `/api/borrowings/return/:id` | Return a book | ✅ |
 | GET | `/api/borrowings/my-books` | Get user's current books | ✅ |
-| GET | `/api/borrowings/overdue` | List overdue books | ✅ |
+| GET | `/api/borrowings/overdue` | List overdue books | ❌ |
 
-### Analytics & Reports
+### Analytics & Reports (Public Access)
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| GET | `/api/reports/borrowings?start=&end=&format=csv` | Export borrowing data | ✅ |
-| GET | `/api/reports/overdue?format=xlsx` | Export overdue books | ✅ |
+| GET | `/api/reports/borrowings?start=&end=&format=csv` | Export borrowing data | ❌ |
+| GET | `/api/reports/overdue?format=xlsx` | Export overdue books | ❌ |
+
+> **Note:** Authentication is strategically implemented on core borrowing operations (checkout, return, my-books) to demonstrate JWT implementation and protected resource access. This design choice shows the capability to secure sensitive operations while keeping public endpoints accessible for browsing.
+
+### Quick API Reference
+
+**Base URL:** `http://localhost:3005/api`
+
+**Authentication Header:**
+```
+Authorization: Bearer {your_jwt_token}
+```
+
+**Common Response Codes:**
+- `200` OK - Request successful
+- `201` Created - Resource created successfully
+- `400` Bad Request - Validation error
+- `401` Unauthorized - Authentication required/failed
+- `404` Not Found - Resource not found
+- `429` Too Many Requests - Rate limit exceeded
+- `500` Internal Server Error - Server error
+
+**Response Format:** All responses follow this structure:
+```json
+{
+  "success": true/false,
+  "message": "Details",         // Optional, usually on success
+  "data": { ... },              // On success
+  "error": "Error type",        // On failure
+  "pagination": { ... }         // Only for list endpoints
+}
+```
+
+📖 **For detailed request/response examples, see [Detailed API Documentation](#-detailed-api-documentation) or use the [Postman Collection](#-postman-collection--api-testing)**
 
 ---
 
@@ -161,13 +210,829 @@ Automatically sets secure HTTP headers:
 
 ### 3. **JWT Authentication**
 - Stateless authentication using JSON Web Tokens
-- Secure password hashing with bcrypt
+- Secure email-based authentication
 - Token expiration and refresh mechanisms
 
 ### 4. **Rate Limiting**
-Protected endpoints (login & register):
-- 5 requests per 15 minutes per IP
+Protected endpoints:
+- **Login**: 5 requests per 15 minutes per IP
+- **Checkout**: 3 requests per 1 minute per user
 - Prevents brute force attacks
+
+---
+
+## 📖 Detailed API Documentation
+
+### Authentication Endpoints
+
+#### Register Borrower
+```http
+POST /api/borrowers
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Borrower registered successfully",
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "registered_date": "2025-01-31T10:00:00.000Z"
+  }
+}
+```
+
+**Error Response (400 Bad Request) - Email Already Exists:**
+```json
+{
+  "success": false,
+  "error": "Registration failed",
+  "message": "This email is already taken"
+}
+```
+
+**Error Response (400 Bad Request) - Validation Error:**
+```json
+{
+  "success": false,
+  "error": "Email is required"
+}
+```
+
+---
+
+#### Login (🚦 Rate Limited)
+```http
+POST /api/borrowers/login
+Content-Type: application/json
+```
+
+**Rate Limit:** 5 requests per 15 minutes per IP address
+
+**Request Body:**
+```json
+{
+  "email": "john@example.com"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "data": {
+    "id": 1,
+    "name": "John Doe"
+  }
+}
+```
+
+**Error Response (401 Unauthorized):**
+```json
+{
+  "success": false,
+  "error": "Authentication failed",
+  "message": "Borrower not found with this email"
+}
+```
+
+**Error Response (429 Too Many Requests):**
+```json
+{
+  "success": false,
+  "error": "Too many requests",
+  "message": "Too many login attempts. Please try again in 15 minutes"
+}
+```
+
+---
+
+### Book Endpoints
+
+#### List All Books
+```http
+GET /api/books
+```
+
+**Query Parameters:**
+- `page` (optional): Page number, default: 1
+- `limit` (optional): Items per page, default: 5
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "isbn": "978-0132350884",
+      "available_quantity": 5,
+      "shelf_location": "A-12",
+      "created_at": "2025-01-31T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "The Pragmatic Programmer",
+      "author": "Andrew Hunt",
+      "isbn": "978-0201616224",
+      "available_quantity": 3,
+      "shelf_location": "A-13",
+      "created_at": "2025-01-30T14:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "totalItems": 16,
+    "totalPages": 4,
+    "currentPage": 1,
+    "pageSize": 5
+  }
+}
+```
+
+---
+
+#### Search Books
+```http
+POST /api/books/search
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "searchTerm": "clean code"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "isbn": "978-0132350884",
+      "available_quantity": 5,
+      "shelf_location": "A-12",
+      "created_at": "2026-01-31T17:50:15.339Z"
+    }
+  ]
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "success": false,
+  "error": "Search term is required"
+}
+```
+
+---
+
+#### Add Book
+```http
+POST /api/books
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "isbn": "978-0132350884",
+  "quantity": 5,
+  "shelf_location": "A-12"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Book added successfully",
+  "data": {
+    "id": 1,
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "isbn": "978-0132350884",
+    "available_quantity": 5,
+    "shelf_location": "A-12"
+  }
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "message": "Missing required fields: title, author, and isbn are mandatory"
+}
+```
+**Error Response (409 Conflict):**
+```json
+{
+  "success": false,
+  "error": "Duplicate Entry",
+  "message": "Book with this ISBN already exists"
+}
+```
+
+---
+
+#### Update Book
+```http
+PUT /api/books/:id
+Content-Type: application/json
+```
+
+**Request Body:** (All fields optional)
+```json
+{
+  "title": "Clean Code: A Handbook",
+  "quantity": 10,
+  "shelf_location": "A-15"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Book updated successfully",
+  "data": {
+    "id": 1,
+    "title": "Clean Code: A Handbook",
+    "author": "Robert C. Martin",
+    "isbn": "978-0132350884",
+    "available_quantity": 10,
+    "shelf_location": "A-15"
+  }
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "success": false,
+  "error": "Update data is required"
+}
+```
+
+---
+
+#### Delete Book
+```http
+DELETE /api/books/:id
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Book with ID 1 deleted successfully",
+  "deletedAt": "2025-01-31T15:30:00.000Z"
+}
+```
+
+**Error Response (500 Internal Server Error):**
+```json
+{
+  "success": false,
+  "error": "Deletion failed",
+  "message": "Book Not Found"
+}
+```
+
+---
+
+### Borrower Endpoints
+
+#### List All Borrowers
+```http
+GET /api/borrowers
+```
+
+**Query Parameters:**
+- `page` (optional): Page number, default: 1
+- `limit` (optional): Items per page, default: 10
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "registered_date": "2025-01-15T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "registered_date": "2025-01-20T14:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "totalItems": 45,
+    "totalPages": 5,
+    "currentPage": 1,
+    "pageSize": 10
+  }
+}
+```
+
+---
+
+#### Update Borrower
+```http
+PUT /api/borrowers/:id
+Content-Type: application/json
+```
+
+**Request Body:** (All fields optional)
+```json
+{
+  "name": "John Smith",
+  "email": "john.smith@example.com"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Borrower updated successfully",
+  "data": {
+    "id": 1,
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "registered_date": "2025-01-15T10:00:00.000Z"
+  }
+}
+```
+
+**Error Response (400 Bad Request) - Email Already Taken:**
+```json
+{
+  "success": false,
+  "error": "Update failed",
+  "message": "This email is already taken"
+}
+```
+
+---
+
+#### Delete Borrower
+```http
+DELETE /api/borrowers/:id
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Borrower with ID 1 deleted successfully"
+}
+```
+
+**Error Response (500 Internal Server Error):**
+```json
+{
+    "success": false,
+    "message": "Deletion failed: No borrower found with ID 412"
+}
+```
+
+---
+
+### Borrowing Endpoints (🔒 Authentication Required)
+
+#### Checkout Book (🚦 Rate Limited)
+```http
+POST /api/borrowings/checkout
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Rate Limit:** 3 checkouts per 1 minute per user
+
+**Request Body:**
+```json
+{
+  "book_id": 1
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Book checked out successfully",
+  "data": {
+    "id": 1,
+    "book_id": 1,
+    "borrower_id": 1,
+    "checkout_date": "2025-01-31T10:00:00.000Z",
+    "due_date": "2025-02-14T10:00:00.000Z",
+    "status": "borrowed"
+  }
+}
+```
+
+**Error Response (500 Internal Server Error):**
+```json
+{
+    "success": "false",
+    "message": "Failed to check out book",
+    "error": "Book out of stock"
+
+}
+```
+
+
+**Error Response (429 Too Many Requests):**
+```json
+{
+    "success": false,
+    "message": "You can only checkout 3 books per minute. Please wait before checking out more books.",
+    "retryAfter": "60 seconds"
+}
+```
+
+---
+
+#### Return Book
+```http
+POST /api/borrowings/return/:borrowing_id
+Authorization: Bearer {token}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Book returned successfully",
+  "data": {
+    "id": 1,
+    "book_id": 1,
+    "borrower_id": 1,
+    "checkout_date": "2025-01-31T10:00:00.000Z",
+    "return_date": "2025-02-10T15:30:00.000Z",
+    "due_date": "2025-02-14T10:00:00.000Z",
+    "status": "returned"
+  }
+}
+```
+**Error Response (500 Internal Server Error):**
+```json
+{
+    "success": false,
+    "message": "Failed to return book",
+    "error": "No active borrowing record found for this user and book ID."
+}
+```
+
+---
+
+#### Get My Books
+```http
+GET /api/borrowings/my-books
+Authorization: Bearer {token}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Books retrieved successfully",
+  "data": [
+    {
+      "borrowing_id": 1,
+      "book_id": 1,
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "isbn": "978-0132350884",
+      "checkout_date": "2025-01-31T10:00:00.000Z",
+      "due_date": "2025-02-14T10:00:00.000Z",
+      "days_until_due": 14,
+      "is_overdue": false
+    }
+  ]
+}
+```
+**Response Error (401 Unauthorized):**
+```json
+{
+  
+  {
+    "error":"Access denied. No token provided."
+  }
+}
+```
+**Response Error (404 Not Found):**
+```json
+{
+  
+  {
+    "success": false,
+    "message": "No books found for this user"
+}
+}
+```
+
+---
+
+#### List Overdue Books
+```http
+GET /api/borrowings/overdue
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Overdue books retrieved successfully",
+  "data": [
+     {
+            "id": 17,
+            "title": "1984",
+            "borrower_name": "Emma Brown",
+            "due_date": "2026-01-26T12:00:00.000Z"
+        },
+  ]
+}
+```
+
+---
+
+---
+
+### Analytics & Reports
+
+#### Export Borrowing Data
+```http
+GET /api/reports/export?start=2025-01-01&end=2025-01-31
+```
+
+**Description:** Export all borrowing records within a specified date range to an Excel file.
+
+**Query Parameters:**
+- `start` (required): Start date in YYYY-MM-DD format
+- `end` (required): End date in YYYY-MM-DD format
+
+**Example Request:**
+```bash
+curl -X GET "http://localhost:3005/api/reports/export?start=2025-01-01&end=2025-01-31" \
+  --output borrowing_report.xlsx
+```
+
+**Response (200 OK):**
+- Content-Type: `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- Returns downloadable XLSX file
+- Filename: `Report_2025-01-01_to_2025-01-31.xlsx`
+
+**Excel File Contents:**
+| Borrowing ID | Book Title | Borrower Name | Checkout Date | Due Date | Return Date | Days Borrowed | Status |
+|-------------|------------|---------------|---------------|----------|-------------|---------------|---------|
+| 1 | Clean Code | John Doe | 2025-01-15 | 2025-01-29 | 2025-01-20 | 5 | Returned |
+| 2 | The Pragmatic Programmer | Jane Smith | 2025-01-10 | 2025-01-24 | null | 21 | Borrowed |
+| 3 | Design Patterns | Bob Johnson | 2025-01-05 | 2025-01-19 | 2025-01-18 | 13 | Returned |
+
+**Error Response (404 Not Found) - No Records Found:**
+```json
+{
+  "success": false,
+  "error": "No records found",
+  "message": "No borrowing records found for the specified date range"
+}
+```
+
+**Error Response (400 Bad Request) - Invalid Date Format:**
+```json
+{
+  "success": false,
+  "error": "Invalid date format",
+  "message": "Please provide dates in YYYY-MM-DD format"
+}
+```
+
+**Error Response (400 Bad Request) - Missing Parameters:**
+```json
+{
+  "success": false,
+  "error": "Missing required parameters",
+  "message": "Both start and end dates are required"
+}
+```
+
+---
+
+#### Export Last Month Overdue Books
+```http
+GET /api/reports/last-month-overdue
+```
+
+**Description:** Export all books that were overdue during the last month (past 30 days) to an Excel file. This report helps identify borrowers with overdue books and calculate late fees.
+
+**Example Request:**
+```bash
+curl -X GET "http://localhost:3005/api/reports/last-month-overdue" \
+  --output last_month_overdue.xlsx
+```
+
+**Response (200 OK):**
+- Content-Type: `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- Returns downloadable XLSX file
+- Filename: `Last_Month_Overdue_Report.xlsx`
+
+**Excel File Contents:**
+| Borrowing ID | Book Title | Borrower Name | Borrower Email | Checkout Date | Due Date | Days Overdue |
+|-------------|------------|---------------|----------------|---------------|----------|--------------|
+| 5 | Refactoring | Alice Williams | alice@example.com | 2024-12-20 | 2025-01-03 | 28 |
+| 8 | Code Complete | Charlie Brown | charlie@example.com | 2024-12-25 | 2025-01-08 | 23 |
+| 12 | Clean Architecture | David Lee | david@example.com | 2024-12-28 | 2025-01-11 | 20 |
+
+**Report Criteria:**
+- Only includes unreturned books (return_date IS NULL)
+- Due date must be in the last month
+- Due date must be before current timestamp (actually overdue)
+- Sorted by due date (oldest overdue first)
+
+**Error Response (404 Not Found) - No Overdue Books:**
+```json
+{
+  "success": false,
+  "error": "No records found",
+  "message": "No overdue books found in the last month"
+}
+```
+
+**Error Response (500 Internal Server Error):**
+```json
+{
+  "success": false,
+  "error": "Export failed",
+  "message": "Failed to generate overdue report"
+}
+```
+
+---
+
+#### Export Last Month All Activity
+```http
+GET /api/reports/last-month-all
+```
+
+**Description:** Export all borrowing activity (checkouts, returns, and active borrowings) from the last month (past 30 days). Provides a comprehensive overview of library usage and activity trends.
+
+**Example Request:**
+```bash
+curl -X GET "http://localhost:3005/api/reports/last-month-all" \
+  --output last_month_activity.xlsx
+```
+
+**Response (200 OK):**
+- Content-Type: `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- Returns downloadable XLSX file
+- Filename: `Last_Month_All_Activity.xlsx`
+
+**Excel File Contents:**
+| Borrowing ID | Book Title | Borrower Name | Checkout Date | Due Date | Return Date | Days Borrowed | Status |
+|-------------|------------|---------------|---------------|----------|-------------|---------------|---------|
+| 15 | Clean Code | John Doe | 2025-01-15 | 2025-01-29 | 2025-01-20 | 5 | Returned |
+| 16 | The Pragmatic Programmer | Jane Smith | 2025-01-18 | 2025-02-01 | null | 13 | Borrowed |
+| 17 | Refactoring | Bob Johnson | 2025-01-20 | 2025-02-03 | 2025-01-28 | 8 | Returned |
+| 18 | Design Patterns | Alice Williams | 2025-01-25 | 2025-02-08 | null | 6 | Borrowed |
+
+**Report Includes:**
+- All borrowings that occurred in the last 30 days
+- Both completed (returned) and active (borrowed) transactions
+- Useful for monthly activity analysis and statistics
+- Can be used to identify popular books and active borrowers
+
+**Error Response (404 Not Found) - No Activity:**
+```json
+{
+  "success": false,
+  "error": "No records found",
+  "message": "No borrowing activity found in the last month"
+}
+```
+
+**Error Response (500 Internal Server Error):**
+```json
+{
+  "success": false,
+  "error": "Export failed",
+  "message": "Failed to generate activity report"
+}
+```
+
+
+
+---
+
+### Common Error Responses (All Report Endpoints)
+
+#### Invalid Request (400 Bad Request)
+```json
+{
+  "success": false,
+  "error": "Bad request",
+  "message": "Invalid parameters provided"
+}
+```
+
+#### No Data Found (404 Not Found)
+```json
+{
+  "success": false,
+  "error": "No records found",
+  "message": "No data available for the specified criteria"
+}
+```
+
+#### Server Error (500 Internal Server Error)
+```json
+{
+  "success": false,
+  "error": "Report generation failed",
+  "message": "An error occurred while generating the report"
+}
+```
+
+---
+
+### Error Responses
+
+All endpoints follow a consistent error format:
+
+#### Validation Error (400 Bad Request)
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "message": "Detailed error message"
+}
+```
+
+#### Authentication Error (401 Unauthorized)
+```json
+{
+  "success": false,
+  "error": "Authentication failed",
+  "message": "No token provided"
+}
+```
+
+#### Not Found Error (404)
+```json
+{
+  "success": false,
+  "error": "Resource not found",
+  "message": "Book with ID 999 not found"
+}
+```
+
+#### Rate Limit Error (429)
+```json
+{
+  "success": false,
+  "error": "Too many requests",
+  "message": "Rate limit exceeded. Try again later"
+}
+```
+
+#### Server Error (500)
+```json
+{
+  "success": false,
+  "error": "Internal server error",
+  "message": "An unexpected error occurred"
+}
+```
 
 ---
 
@@ -195,32 +1060,104 @@ Unit tests are implemented for the **Books module** covering:
 
 ---
 
-## 📮 Postman Collection
+## 📮 Postman Collection & API Testing
 
-The repository includes a complete Postman collection with:
+### 🎯 **Complete API Documentation in Postman**
 
-### 🎯 **Automated Token Management**
+The repository includes a comprehensive Postman collection that serves as **interactive, executable API documentation**. This is the recommended way to explore and test all endpoints.
+
+**What's Included:**
+- ✅ All 20+ API endpoints with pre-configured requests
+- ✅ Example requests and responses for each endpoint
+- ✅ Organized by resource (Auth, Books, Borrowers, Borrowings, Reports)
+- ✅ Environment variables for easy configuration
+- ✅ **Automated JWT token management** (no manual copying!)
+
+### 🚀 **Automated Token Management**
+
 The collection features a **pre-request script** that automatically:
-1. Checks if a valid token exists
-2. Logs in and retrieves a new token if expired
+1. Checks if a valid token exists in environment variables
+2. Automatically logs in and retrieves a new token if expired/missing
 3. Sets the token in environment variables
-4. Injects the token into request headers
+4. Injects the token into protected request headers
 
 **No manual token copying required!** 🎉
 
-### Import Instructions
-1. Import `Library-Management.postman_collection.json`
-2. Import `Library-MNG.postman_environment.json`
-3. Set your environment variables (base URL, credentials)
-4. Start testing - tokens are handled automatically!
-
-**Postman Script Highlights:**
+**How it works:**
 ```javascript
-// Automatic token refresh on every request
-if (!pm.environment.get('token') || isTokenExpired()) {
-    await login();
-    pm.environment.set('token', response.token);
+// Pre-request script runs before EVERY request
+const token = pm.environment.get('token');
+
+if (!token || isTokenExpired(token)) {
+    // Auto-login to get fresh token
+    const loginRequest = {
+        url: pm.environment.get('baseUrl') + '/api/borrowers/login',
+        method: 'POST',
+        header: { 'Content-Type': 'application/json' },
+        body: {
+            mode: 'raw',
+            raw: JSON.stringify({
+                email: pm.environment.get('test_email')
+            })
+        }
+    };
+    
+    pm.sendRequest(loginRequest, (err, response) => {
+        const newToken = response.json().token;
+        pm.environment.set('token', newToken);
+    });
 }
+```
+
+### 📥 Import Instructions
+
+1. **Import Collection:**
+   - Open Postman
+   - Click "Import" → "Upload Files"
+   - Select `Library-Management.postman_collection.json`
+
+2. **Import Environment:**
+   - Click "Import" again
+   - Select `Library-MNG.postman_environment.json`
+
+3. **Configure Environment Variables:**
+   ```
+   baseUrl: http://localhost:3005
+   test_email: your-test-user@example.com
+   ```
+
+4. **Start Testing!**
+   - Select "Library-MNG" environment from dropdown
+   - All requests are ready to use
+   - Token management is automatic
+
+### 📚 Collection Structure
+
+```
+📁 Library Management API
+├── 📂 Authentication
+│   ├── Register Borrower
+│   └── Login
+├── 📂 Books
+│   ├── List All Books
+│   ├── Search Books
+│   ├── Add Book
+│   ├── Update Book
+│   └── Delete Book
+├── 📂 Borrowers
+│   ├── List All Borrowers
+│   ├── Update Borrower
+│   └── Delete Borrower
+├── 📂 Borrowing Operations (🔒 Protected)
+│   ├── Checkout Book
+│   ├── Return Book
+│   ├── My Current Books
+│   └── List Overdue Books
+└── 📂 Reports & Analytics
+    ├── Export Borrowings (CSV)
+    ├── Export Borrowings (XLSX)
+    ├── Export Overdue (CSV)
+    └── Export Overdue (XLSX)
 ```
 
 ---
@@ -230,20 +1167,19 @@ if (!pm.environment.get('token') || isTokenExpired()) {
 ### 1. Register & Login
 ```bash
 # Register
-curl -X POST http://localhost:3000/api/auth/register \
+curl -X POST http://localhost:3005/api/borrowers \
   -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","email":"john@example.com","password":"secure123"}'
+  -d '{"name":"John Doe","email":"john@example.com"}'
 
 # Login
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:3005/api/borrowers/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"john@example.com","password":"secure123"}'
+  -d '{"email":"john@example.com"}'
 ```
 
 ### 2. Add a Book
 ```bash
-curl -X POST http://localhost:3000/api/books \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+curl -X POST http://localhost:3005/api/books \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Clean Code",
@@ -256,7 +1192,7 @@ curl -X POST http://localhost:3000/api/books \
 
 ### 3. Checkout a Book
 ```bash
-curl -X POST http://localhost:3000/api/borrowings/checkout \
+curl -X POST http://localhost:3005/api/borrowings/checkout \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"book_id": 1}'
@@ -264,8 +1200,7 @@ curl -X POST http://localhost:3000/api/borrowings/checkout \
 
 ### 4. Export Overdue Books
 ```bash
-curl -X GET "http://localhost:3000/api/reports/overdue?format=xlsx" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+curl -X GET "http://localhost:3005/api/reports/overdue?format=xlsx" \
   --output overdue_books.xlsx
 ```
 
@@ -277,13 +1212,32 @@ curl -X GET "http://localhost:3000/api/reports/overdue?format=xlsx" \
 Library-Management-API/
 ├── database/
 │   ├── schema.sql              # Database schema with indexes
-│   └── db.js                   # Database connection pool
+│   └── db.js                   # PostgreSQL connection pool
 ├── src/
-│   ├── controllers/            # Route handlers
+│   ├── modules/
+│   │   ├── books/
+│   │   │   ├── books.controller.js    # HTTP request handlers
+│   │   │   ├── books.service.js       # Business logic
+│   │   │   ├── books.repository.js    # Database operations
+│   │   │   └── books.routes.js        # Route definitions
+│   │   ├── borrowers/
+│   │   │   ├── borrowers.controller.js
+│   │   │   ├── borrowers.service.js
+│   │   │   ├── borrowers.repository.js
+│   │   │   └── borrowers.routes.js
+│   │   ├── borrowings/
+│   │   │   ├── borrowings.controller.js
+│   │   │   ├── borrowings.service.js
+│   │   │   ├── borrowings.repository.js
+│   │   │   └── borrowings.routes.js
+│   │   └── reports/
+│   │       ├── reports.controller.js  # Report generation handlers
+│   │       ├── reports.service.js     # Report logic & Excel creation
+│   │       ├── reports.repository.js  # Data queries for reports
+│   │       └── reports.routes.js      # Analytics endpoints
 │   ├── middleware/             # Auth, rate limiting, validation
-│   ├── routes/                 # API routes
-│   ├── services/               # Business logic
-│   └── utils/                  # Helpers (CSV/XLSX export)
+│   ├── utils/                  # Helpers (CSV/XLSX export)
+│   └── app.js                  # Express app configuration
 ├── tests/                      # Unit tests
 ├── docker-compose.yml          # Docker configuration
 ├── Dockerfile                  # Container definition
@@ -297,9 +1251,9 @@ Library-Management-API/
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: PostgreSQL
-- **Authentication**: JWT + bcrypt
+- **Authentication**: JWT
 - **Security**: Helmet.js, express-rate-limit
-- **Validation**: express-validator
+- **Validation**: Custom validation logic
 - **File Export**: csv-writer, xlsx
 - **Testing**: Jest
 - **Containerization**: Docker & Docker Compose
@@ -343,16 +1297,10 @@ JWT_SECRET=secret
 
 ### ✅ Bonus Features
 - [x] Analytics & data export (CSV/XLSX)
-- [x] Rate limiting (auth endpoints)
+- [x] Rate limiting (login & checkout endpoints)
 - [x] Docker containerization
 - [x] JWT authentication
 - [x] Unit tests (Books module)
-
----
-
-## 📄 License
-
-This project is created for the Bosta Back-end Engineer Technical Assessment.
 
 ---
 
@@ -360,5 +1308,3 @@ This project is created for the Bosta Back-end Engineer Technical Assessment.
 
 **Hazem Gobran**  
 [GitHub](https://github.com/hazemmx) | [Repository](https://github.com/hazemmx/Library-Management-API)
-
----
