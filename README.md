@@ -708,15 +708,15 @@ Content-Type: application/json
 
 ```json
 {
-  "success": true,
+  "status": "success",
   "message": "Book checked out successfully",
   "data": {
-    "id": 1,
-    "book_id": 1,
-    "borrower_id": 1,
-    "checkout_date": "2025-01-31T10:00:00.000Z",
-    "due_date": "2025-02-14T10:00:00.000Z",
-    "status": "borrowed"
+    "id": 33,
+    "book_id": 6,
+    "borrower_id": 5,
+    "checkout_date": "2026-02-01T00:27:21.304Z",
+    "due_date": "2026-02-08T00:27:21.302Z",
+    "return_date": null
   }
 }
 ```
@@ -754,17 +754,13 @@ Authorization: Bearer {token}
 
 ```json
 {
-  "success": true,
-  "message": "Book returned successfully",
-  "data": {
-    "id": 1,
-    "book_id": 1,
-    "borrower_id": 1,
-    "checkout_date": "2025-01-31T10:00:00.000Z",
-    "return_date": "2025-02-10T15:30:00.000Z",
-    "due_date": "2025-02-14T10:00:00.000Z",
-    "status": "returned"
-  }
+ {
+    "success": true,
+    "message": "Book returned successfully",
+    "data": {
+        "message": "Book returned successfully"
+    }
+}
 }
 ```
 
@@ -780,7 +776,7 @@ Authorization: Bearer {token}
 
 ---
 
-#### Get My Books
+#### User's Borrowings
 
 ```http
 GET /api/borrowings/my-books
@@ -795,15 +791,10 @@ Authorization: Bearer {token}
   "message": "Books retrieved successfully",
   "data": [
     {
-      "borrowing_id": 1,
-      "book_id": 1,
       "title": "Clean Code",
       "author": "Robert C. Martin",
-      "isbn": "978-0132350884",
       "checkout_date": "2025-01-31T10:00:00.000Z",
-      "due_date": "2025-02-14T10:00:00.000Z",
-      "days_until_due": 14,
-      "is_overdue": false
+      "due_date": "2025-02-14T10:00:00.000Z"
     }
   ]
 }
