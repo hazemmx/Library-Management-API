@@ -58,6 +58,10 @@ cd Library-Management-API
 # Start the application with Docker Compose
 docker-compose up -d
 
+# Seed the database with sample data (optional but recommended)
+npm run seed
+
+
 # The API will be available at http://localhost:3005
 ```
 
@@ -78,7 +82,11 @@ cp .env.example .env
 # 4. Create database and run migrations
 psql -U postgres -f database/schema.sql
 
-# 5. Start the server
+# 5. Seed the database with sample data (optional but recommended)
+npm run seed
+
+
+# 6. Start the server
 npm start
 ```
 
