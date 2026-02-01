@@ -9,9 +9,10 @@ const BASE_SELECT = `
         bw.checkout_date as "Checkout Date", 
         bw.due_date as "Due Date",
         bw.return_date as "Return Date",
+        EXTRACT(DAY FROM (CURRENT_TIMESTAMP - bw.checkout_date))::INTEGER as "Days Borrowed",
         CASE 
             WHEN bw.return_date IS NOT NULL THEN 'Returned'
-            ELSE 'Not Returned'
+            ELSE 'Borrowed'
         END as "Status"
     FROM borrowings bw
     JOIN books b ON bw.book_id = b.id
@@ -19,27 +20,29 @@ const BASE_SELECT = `
 `;
 
 async function getBorrowingsByRange(start, end) {
-    const query = `${BASE_SELECT} WHERE bw.checkout_date >= $1 AND bw.checkout_date <= $2 ORDER BY bw.checkout_date DESC`;
-    const { rows } = await db.query(query, [start, end]);
-    return rows;
+  const query = `${BASE_SELECT} WHERE bw.checkout_date >= $1 AND bw.checkout_date <= $2 ORDER BY bw.checkout_date DESC`;
+  const { rows } = await db.query(query, [start, end]);
+  return rows;
 }
 
 async function getLastMonthProcesses() {
-    const query = `${BASE_SELECT} 
+  const query = `${BASE_SELECT} 
         WHERE bw.checkout_date >= date_trunc('month', current_date - interval '1 month')
           AND bw.checkout_date < date_trunc('month', current_date)`;
-    const { rows } = await db.query(query);
-    return rows;
+  const { rows } = await db.query(query);
+  return rows;
 }
 
 async function getLastMonthOverdue() {
-    const query = `
+  const query = `
         SELECT 
             bw.id as "Borrowing ID",
             b.title as "Book Title",
             br.name as "Borrower Name",
+            br.email as "Borrower Email",
             bw.checkout_date as "Checkout Date",
-            bw.due_date as "Due Date"
+            bw.due_date as "Due Date",
+            EXTRACT(DAY FROM (CURRENT_TIMESTAMP - bw.due_date))::INTEGER as "Days Overdue"
         FROM borrowings bw
         JOIN books b ON bw.book_id = b.id
         JOIN borrowers br ON bw.borrower_id = br.id
@@ -48,12 +51,13 @@ async function getLastMonthOverdue() {
           AND bw.return_date IS NULL
           AND bw.due_date < CURRENT_TIMESTAMP
         ORDER BY bw.due_date ASC`;
-    const { rows } = await db.query(query);
-    return rows;
+
+  const { rows } = await db.query(query);
+  return rows;
 }
 
 module.exports = {
-    getBorrowingsByRange,
-    getLastMonthProcesses,
-    getLastMonthOverdue,
+  getBorrowingsByRange,
+  getLastMonthProcesses,
+  getLastMonthOverdue,
 };
