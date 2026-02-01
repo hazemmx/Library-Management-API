@@ -94,6 +94,13 @@ npm start
 
 ## 🗄️ Database Schema
 
+The following diagram illustrates the normalized relational structure of the library system, including books, borrowers, and borrowings.
+
+![Database Schema Diagram](database/Library ERD.png)
+
+🔗 **Interactive Diagram:**  
+https://dbdiagram.io/d/library-management-697dd68cbd82f5fce23419f7
+
 The system uses a normalized PostgreSQL schema with the following tables:
 
 ### Tables
