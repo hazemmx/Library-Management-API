@@ -1,420 +1,524 @@
 {
-    "info": {
-        "_postman_id": "a15e53cf-f115-4997-9c8e-c5c249a93b00",
-        "name": "Library-Management",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "_exporter_id": "50279139",
-        "_collection_link": "https://hazemmx-e4b32d34-5033588.postman.co/workspace/Hazem-Gobran's-Workspace~9056be14-19b4-4abc-81f8-d9b858e73db7/collection/50279139-a15e53cf-f115-4997-9c8e-c5c249a93b00?action=share&source=collection_link&creator=50279139"
-    },
-    "item": [{
-            "name": "Books",
-            "item": [{
-                    "name": "Search Books",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"searchTerm\":\"clean code\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/books/search",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["books", "search"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Book",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n\r\n    \"title\":\"Art Of War\",\r\n    \"author\":\"Sun Tzu\",\r\n    \"isbn\":\"971238721\",\r\n    \"available_quantity\":\"15\",\r\n    \"shelf_location\":\"A-13\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/books/",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["books", ""]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "List All Books",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/books",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["books"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update Book",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"author\":\"scott mctominay\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/books/1",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["books", "1"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete Book",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "DELETE",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"author\":\"scott mctominay\"\r\n}"
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/books/1",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["books", "1"]
-                        }
-                    },
-                    "response": []
+  "info": {
+    "_postman_id": "a15e53cf-f115-4997-9c8e-c5c249a93b00",
+    "name": "Library-Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50279139",
+    "_collection_link": "https://go.postman.co/collection/50279139-a15e53cf-f115-4997-9c8e-c5c249a93b00?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Search Books",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"searchTerm\":\"clean code\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-            ]
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "books",
+                "search"
+              ]
+            }
+          },
+          "response": []
         },
         {
-            "name": "Borrower",
-            "item": [{
-                    "name": "List all Borrowers",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowers/",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowers", ""]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update Borrowers",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "PUT",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"email\":\"loren@ipsum.com\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowers/1",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowers", "1"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete Borrower",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "DELETE",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowers/4",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowers", "4"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Register Borrower",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n\r\n   \"name\":\"Jack Sparrow\",\r\n   \"email\":\"carribean@t.com\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowers/",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowers", ""]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Login Borrower",
-                    "event": [{
-                        "listen": "test",
-                        "script": {
-                            "exec": [
-                                "const jsonData = pm.response.json();\r",
-                                "\r",
-                                "if (jsonData.token) {\r",
-                                "    // 1. Clear it from everywhere else first\r",
-                                "    pm.globals.unset(\"token\");\r",
-                                "    pm.collectionVariables.unset(\"token\");\r",
-                                "\r",
-                                "    // 2. Set it in the Environment\r",
-                                "    pm.environment.set(\"token\", jsonData.token);\r",
-                                "    \r",
-                                "    console.log(\"✅ Cleaned old scopes and updated Environment token!\");\r",
-                                "}"
-                            ],
-                            "type": "text/javascript",
-                            "packages": {},
-                            "requests": {}
-                        }
-                    }],
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"email\":\"carol.martinez@example.com\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowers/login",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowers", "login"]
-                        }
-                    },
-                    "response": []
+          "name": "Add Book",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n    \"title\":\"Art Of War\",\r\n    \"author\":\"Sun Tzu\",\r\n    \"isbn\":\"971238721\",\r\n    \"available_quantity\":\"145\",\r\n    \"shelf_location\":\"A-13\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-            ]
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "books",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
-            "name": "Borrowings Operations",
-            "item": [{
-                    "name": "Checkout",
-                    "request": {
-                        "auth": {
-                            "type": "bearer",
-                            "bearer": [{
-                                "key": "token",
-                                "value": "{{token}}",
-                                "type": "string"
-                            }]
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"bookId\":\"13\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowings/checkout",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowings", "checkout"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Return Book",
-                    "request": {
-                        "auth": {
-                            "type": "bearer",
-                            "bearer": [{
-                                "key": "token",
-                                "value": "{{token}}",
-                                "type": "string"
-                            }]
-                        },
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\r\n    \"bookId\":\"8\"\r\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowings/return/15",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowings", "return", "15"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "User's Borrowings",
-                    "request": {
-                        "auth": {
-                            "type": "bearer",
-                            "bearer": [{
-                                "key": "token",
-                                "value": "{{token}}",
-                                "type": "string"
-                            }]
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowings/my-books",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowings", "my-books"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Overdue Borrowings",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/borrowings/overdue",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["borrowings", "overdue"]
-                        }
-                    },
-                    "response": []
-                }
-            ]
+          "name": "List All Books",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "books"
+              ]
+            }
+          },
+          "response": []
         },
         {
-            "name": "Reports",
-            "item": [{
-                    "name": "Borrowings in Specific Period",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/reports/export?start=2026-01-01&end=2026-01-31",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["reports", "export"],
-                            "query": [{
-                                    "key": "start",
-                                    "value": "2026-01-01"
-                                },
-                                {
-                                    "key": "end",
-                                    "value": "2026-01-31"
-                                }
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Last Month Borrowings",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/reports/last-month-all",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["reports", "last-month-all"]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Last Month Overdue",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/reports/last-month-overdue",
-                            "host": ["{{baseUrl}}"],
-                            "path": ["reports", "last-month-overdue"]
-                        }
-                    },
-                    "response": []
+          "name": "Update Book",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"author\":\"scott mctominay\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-            ]
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "books",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Book",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"author\":\"scott mctominay\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "books",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
-    ]
+      ]
+    },
+    {
+      "name": "Borrower",
+      "item": [
+        {
+          "name": "List all Borrowers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrowers/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Borrowers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"loren@ipsum.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrowers/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Borrower",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrowers/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Borrowings Operations",
+      "item": [
+        {
+          "name": "Checkout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"bookId\":\"13\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrowings/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowings",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Return Book",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"bookId\":\"8\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrowings/return/15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowings",
+                "return",
+                "15"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User's Borrowings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrowings/my-books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowings",
+                "my-books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Overdue Borrowings",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/borrowings/overdue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowings",
+                "overdue"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Borrowings in Specific Period",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/export?start=2026-01-01&end=2026-01-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "end",
+                  "value": "2026-01-31"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Last Month Borrowings",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/last-month-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "last-month-all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Last Month Overdue",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/last-month-overdue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "last-month-overdue"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login Borrower",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "if (jsonData.token) {\r",
+                  "    // 1. Clear it from everywhere else first\r",
+                  "    pm.globals.unset(\"token\");\r",
+                  "    pm.collectionVariables.unset(\"token\");\r",
+                  "\r",
+                  "    // 2. Set it in the Environment\r",
+                  "    pm.environment.set(\"token\", jsonData.token);\r",
+                  "    \r",
+                  "    console.log(\"✅ Cleaned old scopes and updated Environment token!\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"carol.martinez@example.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrowers/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Borrower",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\r\n   \"name\":\"Jack Sparrow\",\r\n   \"email\":\"carribean@t.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrowers/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }
