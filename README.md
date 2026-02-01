@@ -1075,39 +1075,40 @@ The repository includes a comprehensive Postman collection that serves as **inte
 
 ### 🚀 **Automated Token Management**
 
-The collection features a **pre-request script** that automatically:
-1. Checks if a valid token exists in environment variables
-2. Automatically logs in and retrieves a new token if expired/missing
-3. Sets the token in environment variables
-4. Injects the token into protected request headers
-
-**No manual token copying required!** 🎉
+The collection features a **test script** that automatically handles authentication tokens:
 
 **How it works:**
-```javascript
-// Pre-request script runs before EVERY request
-const token = pm.environment.get('token');
+1. When you call the **Login** endpoint, the response token is automatically captured
+2. The token is saved to your environment variables
+3. All protected endpoints automatically use this token from the environment
+4. **No manual token copying required!** 🎉
 
-if (!token || isTokenExpired(token)) {
-    // Auto-login to get fresh token
-    const loginRequest = {
-        url: pm.environment.get('baseUrl') + '/api/borrowers/login',
-        method: 'POST',
-        header: { 'Content-Type': 'application/json' },
-        body: {
-            mode: 'raw',
-            raw: JSON.stringify({
-                email: pm.environment.get('test_email')
-            })
-        }
-    };
+**Post-response script in Login endpoint:**
+```javascript
+// Automatically runs after successful login
+const jsonData = pm.response.json();
+
+if (jsonData.token) {
+    // 1. Clear it from everywhere else first
+    pm.globals.unset("token");
+    pm.collectionVariables.unset("token");
+
+    // 2. Set it in the Environment
+    pm.environment.set("token", jsonData.token);
     
-    pm.sendRequest(loginRequest, (err, response) => {
-        const newToken = response.json().token;
-        pm.environment.set('token', newToken);
-    });
+    console.log("✅ Cleaned old scopes and updated Environment token!");
 }
 ```
+
+**Authorization header in protected endpoints:**
+```
+Authorization: Bearer {{token}}
+```
+
+The `{{token}}` variable is automatically populated from your environment after login, so you just need to:
+1. Login once using the Login endpoint
+2. All other protected endpoints work automatically with the saved token
+
 
 ### 📥 Import Instructions
 
@@ -1137,7 +1138,7 @@ if (!token || isTokenExpired(token)) {
 📁 Library Management API
 ├── 📂 Authentication
 │   ├── Register Borrower
-│   └── Login
+│   └── Login Borrower
 ├── 📂 Books
 │   ├── List All Books
 │   ├── Search Books
@@ -1151,58 +1152,16 @@ if (!token || isTokenExpired(token)) {
 ├── 📂 Borrowing Operations (🔒 Protected)
 │   ├── Checkout Book
 │   ├── Return Book
-│   ├── My Current Books
-│   └── List Overdue Books
+│   ├── User's Borrowings
+│   └── Overdue Borrowings
 └── 📂 Reports & Analytics
-    ├── Export Borrowings (CSV)
-    ├── Export Borrowings (XLSX)
-    ├── Export Overdue (CSV)
-    └── Export Overdue (XLSX)
+    ├── Borrowings in Specific Period (XLSX)
+    ├── Last Month Overdue (XLSX)
+    └── Last Month Borrowings (XLSX)
+      
+
 ```
 
----
-
-## 📊 Example Usage
-
-### 1. Register & Login
-```bash
-# Register
-curl -X POST http://localhost:3005/api/borrowers \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","email":"john@example.com"}'
-
-# Login
-curl -X POST http://localhost:3005/api/borrowers/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"john@example.com"}'
-```
-
-### 2. Add a Book
-```bash
-curl -X POST http://localhost:3005/api/books \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Clean Code",
-    "author": "Robert C. Martin",
-    "isbn": "978-0132350884",
-    "quantity": 5,
-    "shelf_location": "A-12"
-  }'
-```
-
-### 3. Checkout a Book
-```bash
-curl -X POST http://localhost:3005/api/borrowings/checkout \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"book_id": 1}'
-```
-
-### 4. Export Overdue Books
-```bash
-curl -X GET "http://localhost:3005/api/reports/overdue?format=xlsx" \
-  --output overdue_books.xlsx
-```
 
 ---
 
