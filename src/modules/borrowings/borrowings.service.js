@@ -2,20 +2,33 @@ const db = require("../../database/db");
 const borrowingRepo = require("./borrowings.repository");
 
 const checkoutBook = async (bookId, borrowerId) => {
-  // Check stock
-  const bookRes = await db.query(
-    "SELECT available_quantity FROM books WHERE id = $1",
-    [bookId],
-  );
-  if (bookRes.rows.length === 0) throw new Error("Book not found");
-  if (bookRes.rows[0].available_quantity <= 0)
-    throw new Error("Book out of stock");
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
 
-  // Set due date to 14 days from now
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 7); // to test getting overdue comment this line and abuse checkout
+    // Lock the row and check stock inside the transaction to prevent TOCTOU races
+    const bookRes = await client.query(
+      "SELECT available_quantity FROM books WHERE id = $1 FOR UPDATE",
+      [bookId],
+    );
+    if (bookRes.rows.length === 0) throw new Error("Book not found");
+    if (bookRes.rows[0].available_quantity <= 0)
+      throw new Error("Book out of stock");
 
-  return await borrowingRepo.checkout(bookId, borrowerId, dueDate);
+    // Set due date to 7 days from now
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7); // to test getting overdue comment this line and abuse checkout
+
+    const result = await borrowingRepo.checkout(bookId, borrowerId, dueDate, client);
+
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 async function returnBook(borrowingId, borrowerId) {

@@ -4,7 +4,7 @@ CREATE TABLE books (
     title VARCHAR(255) NOT NULL,
     author VARCHAR(255) NOT NULL,
     isbn VARCHAR(20) UNIQUE NOT NULL,
-    available_quantity INT DEFAULT 1,
+    available_quantity INT DEFAULT 1 CHECK (available_quantity >= 0),
     shelf_location VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
